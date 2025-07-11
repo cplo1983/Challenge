@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Ejemplo de Infraestructura Segura en AWS
+
+Resources:
+  WindowsServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-xxxxxx
+      InstanceType: t3.large
+      IamInstanceProfile: SecureWindowsProfile
+      SecurityGroupIds:
+        - sg-windows-secure
+      SubnetId: subnet-private
+      Tags:
+        - Key: Name
+          Value: WindowsController
+  LinuxServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-yyyyyy
+      InstanceType: t3.large
+      IamInstanceProfile: SecureLinuxProfile
+      SecurityGroupIds:
+        - sg-linux-secure
+      SubnetId: subnet-private
+      Tags:
+        - Key: Name
+          Value: LinuxController
+  SecureWindowsProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [WindowsSSMRole]
+  SecureLinuxProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [LinuxSSMRole]
+  sg-windows-secure:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Seguridad estricta para Windows
+      VpcId: vpc-xxxxxx
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3389
+          ToPort: 3389
+          CidrIp: 10.0.0.0/16
+  sg-linux-secure:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Seguridad estricta para Linux
+      VpcId: vpc-xxxxxx
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 10.0.0.0/16
